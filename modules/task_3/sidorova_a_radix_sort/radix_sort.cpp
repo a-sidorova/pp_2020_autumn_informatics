@@ -65,16 +65,14 @@ std::vector<double> radixSortParallel(const std::vector<double>& src) {
             ++srcSize;
             ++fictiveValues;
         }
-
-        dst.resize(srcSize);
     }
 
-    int localSize = -1;
-    if (rank == 0)
-        localSize = srcSize / size;
-    std::cout << "Rank: " << rank << " before localsize: " << srcSize << std::endl;
-    MPI_Bcast(&localSize, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    std::cout << "Rank: " << rank << " after localsize: " << srcSize << std::endl;
+    std::cout << "Rank: " << rank << " before 2 srcsize: " << srcSize << std::endl;
+    MPI_Bcast(&srcSize, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    std::cout << "Rank: " << rank << " after 2 srcsize: " << srcSize << std::endl;
+    dst.resize(srcSize);
+    int localSize = srcSize / size;
+    std::cout << "Rank: " << rank << " after localsize: " << localSize << std::endl;
 
     std::vector<double> localVector(localSize);
     std::vector<double> bufferVector(localSize);
