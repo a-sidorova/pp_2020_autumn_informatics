@@ -131,9 +131,9 @@ std::vector<double> radixSortParallel(const std::vector<double>& src) {
         }
     }
 
-    std::cout << "Rank: " << rank << " before gather" << std::endl;
+    std::cout << "Rank: " << rank << " before gather " << std::endl;
     MPI_Gather(localVector.data(), localSize, MPI_DOUBLE, &dst[0], localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    std::cout << "Rank: " << rank << " after gather" << std::endl;
+    std::cout << "Rank: " << rank << " after gather " << std::endl;
 
     if (rank == 0 && fictiveValues != 0)
         dst.erase(dst.begin() + srcSize - fictiveValues, dst.end());
