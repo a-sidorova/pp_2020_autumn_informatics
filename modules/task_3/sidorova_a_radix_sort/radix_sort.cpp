@@ -33,11 +33,12 @@ std::vector<double> getRandomVector(const size_t size) {
 }
 
 std::vector<double> radixSortParallel(const std::vector<double>& src) {
+    MPI_Barrier(MPI_COMM_WORLD);
     int size, rank;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    int srcSize = 0;
+    int srcSize = -1;
     if (rank == 0)
         srcSize = src.size();
     std::cout << "Rank: " << rank << " before srcsize: " << srcSize << std::endl;
@@ -47,23 +48,28 @@ std::vector<double> radixSortParallel(const std::vector<double>& src) {
     if (srcSize <= 0)
         throw "[Error] Incorrect array size. The size must be positive";
 
-    std::vector<double> dst(src);
+    std::vector<double> dst(srcSize);
     if (size == 1 || size >= srcSize) {
         if (rank == 0)
             dst = radixSortSequential(src);
         return dst;
     }
 
+    std::vector<double> tmp;
     size_t fictiveValues = 0;
     if (rank == 0) {
+        tmp = src;
+
         while (srcSize % size) {
-            dst.push_back(std::numeric_limits<double>::max());
+            tmp.push_back(std::numeric_limits<double>::max());
             ++srcSize;
             ++fictiveValues;
         }
+
+        dst.resize(srcSize);
     }
 
-    int localSize;
+    int localSize = -1;
     if (rank == 0)
         localSize = srcSize / size;
     std::cout << "Rank: " << rank << " before localsize: " << srcSize << std::endl;
@@ -75,7 +81,7 @@ std::vector<double> radixSortParallel(const std::vector<double>& src) {
     std::vector<double> tmpVector(localSize);
 
     std::cout << "Rank: " << rank << " before scatter" << std::endl;
-    MPI_Scatter(dst.data(), localSize, MPI_DOUBLE, &localVector[0], localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Scatter(tmp.data(), localSize, MPI_DOUBLE, &localVector[0], localSize, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     std::cout << "Rank: " << rank << " after scatter" << std::endl;
 
     localVector = radixSortSequential(localVector);
