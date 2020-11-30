@@ -136,7 +136,7 @@ std::vector<double> radixSortParallel(const std::vector<double>& src) {
     std::cout << "Rank: " << rank << " after gather" << std::endl;
 
     if (rank == 0 && fictiveValues != 0)
-        dst.erase(src.begin() + srcSize - fictiveValues, src.end());
+        dst.erase(dst.begin() + srcSize - fictiveValues, dst.end());
 
     return dst;
 }
